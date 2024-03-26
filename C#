@@ -1,0 +1,121 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace test20
+{
+    public partial class Form1 : Form
+    {
+        String store = "";
+        public Form1()
+        {
+            InitializeComponent();
+            
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void btnsave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //FileStream Fn = new FileStream("Limsokmey.txt", FileMode.Create);
+                FileStream Fn = new FileStream("Limsokmey.txt", FileMode.Append);
+                StreamWriter writer = new StreamWriter(Fn);
+                writer.WriteLine(txtname.Text + "#" + txtsex.Text + "#" + txtphone.Text + "\t");
+                writer.Close();
+                Fn.Close();
+
+                txtname.Clear();
+                txtsex.Clear();
+                txtphone.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnsearch_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                FileStream Fn = new FileStream("Limsokmey.txt", FileMode.Open);
+                StreamReader reader = new StreamReader(Fn);
+                while (!reader.EndOfStream)
+                {
+                    store = reader.ReadLine();
+                    String[] s = store.Split('\n');
+                    foreach (String ss in s)
+                    {
+                        String[] sss = ss.Split('#');
+                        if (sss[0] == txtname.Text)
+                        {
+                            txtsex.Text = sss[1];
+                            txtphone.Text = sss[2];
+                        }
+                        else if (sss[2] == txtphone.Text)
+                        {
+                            txtname.Text = sss[0];
+                            txtsex.Text = sss[1];
+                        }
+                    }
+                }
+                reader.Close();
+                Fn.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btndelete_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string tempFile = Path.GetTempFileName();
+                FileStream Fn1 = new FileStream("Limsokmey.txt", FileMode.Open);
+                StreamReader reader = new StreamReader(Fn1);
+                FileStream Fn = new FileStream(tempFile, FileMode.Create);
+                StreamWriter writer = new StreamWriter(Fn);
+                String line;
+                while(!reader.EndOfStream)
+                {
+                    line = reader.ReadLine();
+                    string[] parts = line.Split('#');
+                    if (!(parts[0] == txtname.Text && parts[2] == txtphone.Text))
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+                reader.Close();
+                writer.Close();
+                Fn1.Close();
+                Fn.Close();
+
+                File.Delete("Limsokmey.txt");
+                File.Move(tempFile, "Limsokmey.txt");
+
+                txtname.Clear();
+                txtsex.Clear();
+                txtphone.Clear();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+    }
+}
